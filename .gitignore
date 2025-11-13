@@ -1,0 +1,5 @@
+assembly.json
+run.log
+cromwell-executions/
+cromwell-workflow-logs/
+n_count.txt
