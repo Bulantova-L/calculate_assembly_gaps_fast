@@ -3,40 +3,26 @@ version 1.0
 workflow countNs {
     input {
         File fasta
-        String mode  # "slow" or "fast"
         Int preemptible = 1
     }
 
-    # Run fast path if selected
-    if (mode == "fast") {
-        call SplitFasta { 
-            input: fasta = fasta, 
-                preemptible = preemptible    
-            }
-
-        scatter (f in SplitFasta.split_fastas) {
-            call CountNs {
-                input: fasta = f, 
-                    preemptible = preemptible
-                }
+    call SplitFasta { 
+        input: fasta = fasta, 
+            preemptible = preemptible    
         }
-
-        call SumCounts {
-            input: counts = CountNs.n_counts,
+    scatter (f in SplitFasta.split_fastas) {
+        call CountNs {
+            input: fasta = f, 
                 preemptible = preemptible
-        }
+            }
     }
-
-    # Run slow path if selected
-    if (mode == "slow") {
-        call CountNs as CountNsSlow { 
-            input: fasta = fasta,
-                preemptible = preemptible
-            }
+    call SumCounts {
+        input: counts = CountNs.n_counts,
+            preemptible = preemptible
     }
 
     output {
-        Int total_Ns = select_first([SumCounts.total_Ns, CountNsSlow.n_counts])
+        Int total_Ns = SumCounts.total_Ns
     }
 }
 
@@ -72,7 +58,7 @@ task CountNs {
     }
 
     command <<<
-        seqtk gap ~{fasta} | awk '{sum += $2} END {print sum}' > n_count.txt
+        seqtk comp ~{fasta} | awk '{sum += $6} END {print sum ? sum : 0}' > n_count.txt
     >>>
 
     output {
@@ -103,7 +89,7 @@ task SumCounts {
     }
 
     runtime {
-        docker: "ubuntu:22.04"
+        docker: "quay.io/biocontainers/seqtk:1.3--hed695b0_2"
         cpu: 1
         memory: "512M"
         preemptible: preemptible
