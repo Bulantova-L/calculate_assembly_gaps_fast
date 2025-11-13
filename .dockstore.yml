@@ -1,0 +1,6 @@
+version: 1.1
+workflows:
+  - name: calculate_assembly_gaps_fast
+    subclass: WDL
+    primaryDescriptorPath: /calculate_assembly_gaps_fast.wdl
+    testParameterFiles: []
