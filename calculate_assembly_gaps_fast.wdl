@@ -85,7 +85,7 @@ task SumCounts {
     }
 
     command <<< 
-        echo "~{sep=' ' counts}" | awk '{s=0; for(i=1;i<=NF;i++) s+=$i; print s}' > total.txt
+        echo "~{write_lines(counts)}" | tr '\n' ' ' | awk '{s=0; for(i=1;i<=NF;i++) s+=$i; print s}' > total.txt
     >>>
     output {
         Int total_Ns = read_int("total.txt")
