@@ -62,11 +62,11 @@ task CountNs {
     }
 
     command <<<
-        seqtk comp ~{fasta} | awk '{sum += $6} END {print sum ? sum : 0}' > n_count.txt
+        seqtk comp ~{fasta} | awk '{sum += $6} END {print sum ? sum : 0}' > ./n_count.txt
     >>>
 
     output {
-        Int n_counts = read_int("n_count.txt")
+        Int n_counts = read_int("./n_count.txt")
     }
 
     runtime {
@@ -85,7 +85,12 @@ task SumCounts {
     }
 
     command <<< 
-        echo "~{write_lines(counts)}" | tr '\n' ' ' | awk '{s=0; for(i=1;i<=NF;i++) s+=$i; print s}' > total.txt
+        # Debug: show the counts file path and content
+        echo "Counts file: ~{write_lines(counts)}" >&2
+        cat ~{write_lines(counts)} >&2
+
+        # Sum the integers, one per line
+        awk '{s+=$1} END {print s}' ~{write_lines(counts)} > total.txt
     >>>
     output {
         Int total_Ns = read_int("total.txt")
