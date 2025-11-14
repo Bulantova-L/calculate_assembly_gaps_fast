@@ -38,8 +38,8 @@ task SplitFasta {
     }
 
     command <<<
-        awk '/^>/{if(f){close(f)}; f=substr($0,2); gsub(/[ \t]/,"_",f); f=f".fa"} {print > f}' ~{fasta}
-        ls *.fa > fasta_list.txt
+        awk '/^>/ {i++; if(f){close(f)}; f="seq_" i ".fa"} {print > f}' ~{fasta}
+        ls seq_*.fa > fasta_list.txt
     >>>
 
     output {
