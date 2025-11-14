@@ -1,6 +1,7 @@
 assembly.json
 run.log
-cromwell-executions/
-cromwell-workflow-logs/
+cromwell*
 n_count.txt
 test_subset.fasta
+womtool*
+countNs*
