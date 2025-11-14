@@ -1,6 +1,10 @@
-version 1.1
-
+version 1.0
 workflow countNs {
+    meta {
+        description: "Splits a FASTA file, counts N bases per sequence, and sums the total"
+        author: "Lucie Bulantová"
+        email: "474241@mail.muni.cz"
+    }
     input {
         File fasta
         Int preemptible = 1
@@ -80,10 +84,9 @@ task SumCounts {
         Int preemptible
     }
 
-    command <<<
+    command <<< 
         echo "~{sep=' ' counts}" | awk '{s=0; for(i=1;i<=NF;i++) s+=$i; print s}' > total.txt
     >>>
-
     output {
         Int total_Ns = read_int("total.txt")
     }
