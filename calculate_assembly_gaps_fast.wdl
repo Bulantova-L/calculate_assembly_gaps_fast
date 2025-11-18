@@ -50,8 +50,6 @@ task SplitFasta {
 
     runtime {
         docker: "quay.io/biocontainers/seqtk:1.3--hed695b0_2"
-        cpu: 1
-        memory: "1G"
         preemptible: preemptible
     }
 }
@@ -96,8 +94,6 @@ task SumCounts {
 
     runtime {
         docker: "ubuntu:22.04"
-        cpu: 1
-        memory: "512M"
         preemptible: preemptible
     }
 }
