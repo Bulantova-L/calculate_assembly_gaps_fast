@@ -30,7 +30,6 @@ workflow countNs {
 task SplitFasta {
     input {
         File fasta
-        Int preemptible
     }
 
     command <<<
@@ -75,7 +74,6 @@ task CountNs {
 task SumCounts {
     input {
         Array[Int] counts
-        Int preemptible
     }
 
     command <<< 
