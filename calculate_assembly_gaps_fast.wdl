@@ -38,8 +38,10 @@ task SplitFasta {
     }
 
     command <<<
-        awk '/^>/ {i++; if(f){close(f)}; f="seq_" i ".fa"} {print > f}' ~{fasta}
-        ls seq_*.fa > fasta_list.txt
+        set -euo pipefail
+        mkdir -p sequences
+        awk '/^>/ {i++; if(f){close(f)}; f="sequences/seq_" i ".fa"} {print > f}' ~{fasta}
+        ls sequences/seq_*.fa > fasta_list.txt
     >>>
 
     output {
@@ -62,7 +64,7 @@ task CountNs {
     }
 
     command <<<
-        seqtk comp ~{fasta} | awk '{sum += $6} END {print sum ? sum : 0}' > ./n_count.txt
+        grep -o -i "N" ~{fasta} | wc -l > n_count.txt || echo 0 > n_count.txt
     >>>
 
     output {
@@ -70,10 +72,7 @@ task CountNs {
     }
 
     runtime {
-        docker: "quay.io/biocontainers/seqtk:1.3--hed695b0_2"
-        cpu: 1
-        memory: "512M"
-        preemptible: preemptible
+        docker: "ubuntu:22.04"
     }
 }
 
@@ -85,19 +84,18 @@ task SumCounts {
     }
 
     command <<< 
-        # Debug: show the counts file path and content
-        echo "Counts file: ~{write_lines(counts)}" >&2
-        cat ~{write_lines(counts)} >&2
+        for c in ~{counts}; do
+            echo $c
+        done > counts.txt
 
-        # Sum the integers, one per line
-        awk '{s+=$1} END {print s}' ~{write_lines(counts)} > total.txt
+        awk '{s += $1} END {print s}' counts.txt > total.txt
     >>>
     output {
         Int total_Ns = read_int("total.txt")
     }
 
     runtime {
-        docker: "quay.io/biocontainers/seqtk:1.3--hed695b0_2"
+        docker: "ubuntu:22.04"
         cpu: 1
         memory: "512M"
         preemptible: preemptible
