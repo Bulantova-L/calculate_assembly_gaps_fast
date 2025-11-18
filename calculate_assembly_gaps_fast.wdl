@@ -78,11 +78,7 @@ task SumCounts {
     }
 
     command <<< 
-        for c in ~{counts}; do
-            echo $c
-        done > counts.txt
-
-        awk '{s += $1} END {print s}' counts.txt > total.txt
+        echo "~{sep='\n' counts}" | awk '{s+=$1} END {print s}' > total.txt
     >>>
     output {
         Int total_Ns = read_int("./total.txt")
