@@ -7,22 +7,18 @@ workflow countNs {
     }
     input {
         File fasta
-        Int preemptible = 1
     }
 
     call SplitFasta { 
-        input: fasta = fasta, 
-            preemptible = preemptible    
+        input: fasta = fasta
         }
     scatter (f in SplitFasta.split_fastas) {
         call CountNs {
-            input: fasta = f, 
-                preemptible = preemptible
+            input: fasta = f
             }
     }
     call SumCounts {
-        input: counts = CountNs.n_counts,
-            preemptible = preemptible
+        input: counts = CountNs.n_counts
     }
 
     output {
@@ -40,17 +36,19 @@ task SplitFasta {
     command <<<
         set -euo pipefail
         mkdir -p sequences
-        awk '/^>/ {i++; if(f){close(f)}; f="sequences/seq_" i ".fa"} {print > f}' ~{fasta}
-        ls sequences/seq_*.fa > fasta_list.txt
+
+        seqtk seq ~{input_file} | awk '/^>/{f="sequences/seq_" ++i ".fa"} {print > f}'
+
+        ls -l sequences
     >>>
 
     output {
-        Array[File] split_fastas = read_lines("fasta_list.txt")
+           Array[File] split_fastas = glob("sequences/*.fa")
+
     }
 
     runtime {
-        docker: "quay.io/biocontainers/seqtk:1.3--hed695b0_2"
-        preemptible: preemptible
+        docker: "biocontainers/seqtk:v1.3-1-deb_cv1"
     }
 }
 
@@ -58,7 +56,6 @@ task SplitFasta {
 task CountNs {
     input {
         File fasta
-        Int preemptible
     }
 
     command <<<
@@ -94,6 +91,5 @@ task SumCounts {
 
     runtime {
         docker: "ubuntu:22.04"
-        preemptible: preemptible
     }
 }
