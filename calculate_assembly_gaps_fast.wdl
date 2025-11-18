@@ -12,6 +12,7 @@ workflow countNs {
     call SplitFasta { 
         input: fasta = fasta
         }
+
     scatter (f in SplitFasta.split_fastas) {
         call CountNs {
             input: fasta = f
@@ -84,7 +85,7 @@ task SumCounts {
         awk '{s += $1} END {print s}' counts.txt > total.txt
     >>>
     output {
-        Int total_Ns = read_int("total.txt")
+        Int total_Ns = read_int("./total.txt")
     }
 
     runtime {
