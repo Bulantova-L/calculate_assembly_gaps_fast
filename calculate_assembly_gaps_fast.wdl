@@ -36,7 +36,7 @@ task SplitFasta {
         set -euo pipefail
         mkdir -p sequences
 
-        seqtk seq ~{input_file} | awk '/^>/{f="sequences/seq_" ++i ".fa"} {print > f}'
+        seqtk seq ~{fasta} | awk '/^>/{f="sequences/seq_" ++i ".fa"} {print > f}'
 
         ls -l sequences
     >>>
