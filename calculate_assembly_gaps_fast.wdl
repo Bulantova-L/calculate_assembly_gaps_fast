@@ -78,7 +78,7 @@ task SumCounts {
         echo "~{sep='\n' counts}" | awk '{s+=$1} END {print s}' > total.txt
     >>>
     output {
-        Int total_Ns = read_int("./total.txt")
+        Int total_Ns = read_int("total.txt")
     }
 
     runtime {
