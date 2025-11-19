@@ -35,20 +35,17 @@ task SplitFasta {
 
     command <<<
         set -euo pipefail
-        mkdir -p sequences
 
-        seqtk seq ~{fasta} | awk '/^>/{f="sequences/seq_" ++i ".fa"} {print > f}'
-
-        ls -l sequences
+        seqtk seq ~{fasta} | awk '/^>/{f="seq_" ++i ".fa"} {print > f}'
     >>>
 
     output {
-           Array[File] split_fastas = glob("sequences/*.fa")
+           Array[File] split_fastas = glob("*.fa")
 
     }
 
     runtime {
-        docker: "biocontainers/seqtk:v1.3-1-deb_cv1"
+        docker: "quay.io/biocontainers/seqtk:1.3--hed695b0_2"
     }
 }
 
@@ -63,7 +60,7 @@ task CountNs {
     >>>
 
     output {
-        Int n_counts = read_int("./n_count.txt")
+        Int n_counts = read_int("n_count.txt")
     }
 
     runtime {
